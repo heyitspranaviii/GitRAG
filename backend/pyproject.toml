@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gitrag"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "tree-sitter>=0.21.3",
+    "tree-sitter-python>=0.21.0",
+    "tree-sitter-javascript>=0.21.0",
+    "tree-sitter-typescript>=0.21.0",
+    "tree-sitter-java>=0.21.0",
+    "tree-sitter-go>=0.21.0",
+    "tree-sitter-rust>=0.21.2",
+    "tree-sitter-c>=0.21.0",
+    "tree-sitter-cpp>=0.21.0",
+    "tree-sitter-c-sharp>=0.21.0",
+    "tree-sitter-ruby>=0.21.0",
+    "tree-sitter-php>=0.22.4",
+    "sentence-transformers>=2.7.0",
+    "chromadb>=0.5.0",
+    "rank-bm25>=0.2.2",
+    "networkx>=3.3",
+    "ollama>=0.2.0",
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.30.0",
+    "python-multipart>=0.0.9",
+    "websockets>=12.0",
+    "click>=8.1.7",
+    "rapidfuzz>=3.9.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.3.0",
+    "pyyaml>=6.0.1",
+    "python-dotenv>=1.0.0",
+    "structlog>=24.1.0",
+    "semgrep>=1.75.0",
+    "httpx>=0.27.0",
+]
+
+
+[project.scripts]
+gitrag = "gitrag.cli:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gitrag*"]

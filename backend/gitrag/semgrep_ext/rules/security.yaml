@@ -1,0 +1,168 @@
+rules:
+  - id: python-sql-injection-fstring
+    pattern: $CURSOR.execute(f"...{$VAR}...")
+    message: "SQL injection — f-string in execute(). Use parameterised queries."
+    severity: ERROR
+    languages: [python]
+
+  - id: python-sql-injection-format
+    pattern: $CURSOR.execute("..." % $VAR)
+    message: "SQL injection — % formatting in execute(). Use parameterised queries."
+    severity: ERROR
+    languages: [python]
+
+  - id: python-hardcoded-password
+    pattern: $VAR = "$PASS"
+    metavariable-regex:
+      metavariable: $VAR
+      regex: "(?i)(password|passwd|secret|token|api_key|auth_key|private_key)"
+    message: "Hardcoded credential. Use environment variables."
+    severity: WARNING
+    languages: [python]
+
+  - id: python-eval
+    pattern: eval($X)
+    message: "eval() executes arbitrary code."
+    severity: ERROR
+    languages: [python]
+
+  - id: python-shell-injection
+    pattern: subprocess.run($CMD, shell=True, ...)
+    message: "shell=True is a command injection risk."
+    severity: ERROR
+    languages: [python]
+
+  - id: python-pickle-load
+    pattern: pickle.load($X)
+    message: "pickle.load() on untrusted data allows code execution."
+    severity: ERROR
+    languages: [python]
+
+  - id: python-weak-hash-md5
+    pattern: hashlib.md5(...)
+    message: "MD5 is cryptographically broken. Use SHA-256."
+    severity: WARNING
+    languages: [python]
+
+  - id: python-weak-hash-sha1
+    pattern: hashlib.sha1(...)
+    message: "SHA-1 is cryptographically weak. Use SHA-256."
+    severity: WARNING
+    languages: [python]
+
+  - id: python-yaml-load
+    pattern: yaml.load($X)
+    message: "yaml.load() allows code execution. Use yaml.safe_load()."
+    severity: ERROR
+    languages: [python]
+
+  - id: js-eval
+    pattern: eval($X)
+    message: "eval() executes arbitrary JavaScript."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: js-innerhtml
+    pattern: $X.innerHTML = $Y
+    message: "innerHTML assignment — XSS risk. Use textContent or sanitize."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: js-hardcoded-secret
+    pattern: const $VAR = "$VAL"
+    metavariable-regex:
+      metavariable: $VAR
+      regex: "(?i)(password|secret|token|api_key|apikey|auth_token)"
+    message: "Hardcoded secret. Use environment variables."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  - id: java-sql-injection
+    pattern: $STMT.executeQuery($X + $Y)
+    message: "String concat in SQL. Use PreparedStatement."
+    severity: ERROR
+    languages: [java]
+
+  - id: java-runtime-exec
+    pattern: Runtime.getRuntime().exec($X)
+    message: "Runtime.exec() with user input is a command injection risk."
+    severity: ERROR
+    languages: [java]
+
+  - id: go-sql-injection
+    pattern: db.Query($X + $Y)
+    message: "String concat in SQL. Use parameterised queries."
+    severity: ERROR
+    languages: [go]
+
+  - id: rust-unwrap
+    pattern: $X.unwrap()
+    message: "unwrap() panics on None/Err. Use proper error handling."
+    severity: WARNING
+    languages: [rust]
+
+  - id: rust-unsafe-block
+    pattern: unsafe { ... }
+    message: "Unsafe block — review for memory safety violations."
+    severity: WARNING
+    languages: [rust]
+
+  - id: c-gets
+    pattern: gets($BUF)
+    message: "gets() causes buffer overflow. Use fgets()."
+    severity: ERROR
+    languages: [c, cpp]
+
+  - id: c-strcpy
+    pattern: strcpy($DST, $SRC)
+    message: "strcpy() no bounds check. Use strncpy()."
+    severity: WARNING
+    languages: [c, cpp]
+
+  - id: c-sprintf
+    pattern: sprintf($BUF, $FMT, ...)
+    message: "sprintf() can overflow. Use snprintf()."
+    severity: WARNING
+    languages: [c, cpp]
+
+  - id: csharp-sql-injection
+    pattern: new SqlCommand($X + $Y, ...)
+    message: "String concat in SqlCommand. Use parameterised queries."
+    severity: ERROR
+    languages: [csharp]
+
+  - id: ruby-eval
+    pattern: eval($X)
+    message: "eval() executes arbitrary Ruby."
+    severity: ERROR
+    languages: [ruby]
+
+  - id: ruby-sql-injection
+    pattern: $MODEL.where("... #{$VAR} ...")
+    message: "String interpolation in ActiveRecord where. Use parameterised queries."
+    severity: ERROR
+    languages: [ruby]
+
+  - id: php-eval
+    pattern: eval($X)
+    message: "eval() executes arbitrary PHP."
+    severity: ERROR
+    languages: [php]
+
+  - id: php-xss-get
+    pattern: echo $_GET[$X]
+    message: "Echoing GET param without sanitization — XSS."
+    severity: ERROR
+    languages: [php]
+
+  - id: php-xss-post
+    pattern: echo $_POST[$X]
+    message: "Echoing POST param without sanitization — XSS."
+    severity: ERROR
+    languages: [php]
+
+  - id: php-shell-exec
+    pattern: shell_exec($X)
+    message: "shell_exec() with user input is command injection."
+    severity: ERROR
+    languages: [php]
