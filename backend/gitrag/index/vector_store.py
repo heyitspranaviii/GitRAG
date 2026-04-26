@@ -19,6 +19,13 @@ class VectorStore:
 
     def add(self, chunks: list[Chunk], embeddings: list[list[float]]) -> None:
         if not chunks: return
+        # Clear existing chunks before adding new repo
+        existing = self.collection.count()
+        if existing > 0:
+            self.client.delete_collection("gitrag")
+            self.collection = self.client.get_or_create_collection(
+            name="gitrag", metadata={"hnsw:space": "cosine"},
+            )
         ids   = [c.chunk_id for c in chunks]
         docs  = [c.raw_text  for c in chunks]
         metas = [{

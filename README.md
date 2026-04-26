@@ -2,7 +2,7 @@
 
 > **Production-grade local RAG system for chatting with any code repository.**
 
-GitRAG ingests a local repository, builds a semantic + structural index using AST-aware chunking and hybrid search, and supports conversational multi-turn queryin(all fully offline).
+GitRAG ingests a local repository, builds a semantic + structural index using AST-aware chunking and hybrid search, and supports conversational multi-turn querying — all fully offline.
 
 ---
 
@@ -70,6 +70,14 @@ AST-aware chunking extracts **function, class, and method boundaries** directly 
 
 Pure vector search fails on exact symbol names ("Where is `calculateTaxRate` defined?" — vector search may miss the exact token match), rare identifiers with poor embedding coverage, and short queries like "AutoSaveService" that have weak semantic signal. BM25 handles exact token matching perfectly. Hybrid search combines the semantic understanding of vectors with the precision of keyword search, then uses Reciprocal Rank Fusion to merge the ranked lists without requiring score normalization.
 
+### Security Analysis
+
+GitRAG runs **Semgrep** static analysis on every repository at ingest time. Semgrep scans all source files against a set of security rules and flags potential vulnerabilities like SQL injection, hardcoded secrets, insecure deserialization, and more.
+
+The findings are attached to the relevant code chunks in the index. When a security-related question like "are there any vulnerabilities in this code?" or "is this endpoint secure?" is asked, GitRAG combines the Semgrep findings with the retrieved code context to give a security-aware answer grounded in the actual code.
+
+If no vulnerabilities are found, the ingest summary will show `0 security findings`.
+
 ---
 
 ## Hallucination Mitigation
@@ -107,11 +115,10 @@ Then run `wsl --shutdown` and restart Docker Desktop.
 
 ```bash
 # 1. Clone
-git clone https://github.com/yourusername/gitrag.git
-cd gitrag
+git clone https://github.com/pranaviii29/GitRAG.git
+cd GitRAG
 
 # 2. Create your .env file (see Configuration section below for all variables)
-# Copy the variables from the Configuration section into a new .env file
 
 # 3. Start all services
 docker compose up -d
@@ -204,6 +211,7 @@ LOG_FORMAT=json
 | CPU with 8GB+ RAM | `llama3.2` | `ollama pull llama3.2` | 2 GB |
 | NVIDIA GPU | `llama3` | `ollama pull llama3` | 4.7 GB |
 | NVIDIA GPU (code-optimized) | `codellama:7b` | `ollama pull codellama:7b` | 3.8 GB |
+| AMD GPU (Linux + ROCm) | `llama3.2` | `ollama pull llama3.2` | 2 GB |
 
 To switch models:
 ```bash
@@ -292,7 +300,6 @@ GitRAG uses Docker named volumes so data survives `docker compose down`:
 |---|---|---|
 | `ollama_data` | Ollama LLM models | Must re-pull model (~1–5GB) |
 | `app_data` | ChromaDB vectors, BM25 index, conversation memory | Must re-ingest repo |
-| `hf_cache` | HuggingFace embedder + reranker models | Re-downloads on next startup (~1.5GB) |
 
 **Never run `docker compose down -v`** — the `-v` flag deletes all volumes.
 
@@ -313,15 +320,16 @@ Query reformulation detects follow-up queries (pronouns, short queries referenci
 ## Supported Languages
 
 AST-aware chunking is supported for: Python, JavaScript, TypeScript, Java, Go, Rust, C, C++, C#, Ruby, PHP.
+
 All other file types fall back to the text chunker, which splits on logical boundaries rather than fixed token windows.
 
 ---
 
 ## Troubleshooting
 
-**Response times out (180s exceeded)**
+**Response times out**
 
-Switch to a smaller model (`llama3.2:1b`) or increase the nginx timeout in `nginx/nginx.conf`:
+Increase the nginx timeout in `nginx/nginx.conf`:
 ```nginx
 proxy_read_timeout 600s;
 ```
@@ -333,7 +341,7 @@ Increase Docker/WSL memory. Edit `.wslconfig` and set `memory=6GB`, then `wsl --
 
 **Backend stuck on "reranker_loading"**
 
-The reranker model is downloading. Monitor with `docker stats gitrag_backend --no-stream`. If NET I/O is increasing,it's downloading. If stuck: `docker restart gitrag_backend`
+The reranker model is downloading. Monitor with `docker stats gitrag_backend --no-stream`. If NET I/O is increasing, it's downloading. If stuck: `docker restart gitrag_backend`
 
 **"Repo not found" when ingesting**
 
@@ -347,27 +355,21 @@ docker system prune    # clears unused containers/images
 
 ---
 
-## Roadmap
+## Future Implementations
 
 GitRAG works end-to-end but there are some future improvements planned:
 
-**Smarter Indexing**
-Right now, every ingest re-processes the entire repository from scratch. The next step is content-hash based diffing-only files that actually changed since the last ingest get re-chunked and re-embedded. For large repos this would cut ingest time from minutes to seconds.
+- [ ] **Smarter Indexing** — Right now, every ingest re-processes the entire repository from scratch. The next step is content-hash based diffing — only files that actually changed since the last ingest get re-chunked and re-embedded. For large repos this would cut ingest time from minutes to seconds.
 
-**Better Embedding for Code**
-The current embedding model (`BAAI/bge-base-en-v1.5`) is a general-purpose text model. It works well, but a model trained specifically on source code (like `jina-embeddings-v2-base-code`) would give meaningfully better retrieval for things like variable names, function signatures, and code idioms.
+- [ ] **Better Embedding for Code** — The current embedding model (`BAAI/bge-base-en-v1.5`) is a general-purpose text model. It works well, but a model trained specifically on source code (like `jina-embeddings-v2-base-code`) would give meaningfully better retrieval for things like variable names, function signatures, and code idioms.
 
-**Multi-Repository Support**
-Currently GitRAG indexes one repo at a time. The plan is to support indexing multiple repos simultaneously with a namespace-aware vector store, so you can ask questions that span across projects.
+- [ ] **Multi-Repository Support** — Currently GitRAG indexes one repo at a time. The plan is to support indexing multiple repos simultaneously with a namespace-aware vector store, supporting questions that span across projects.
 
-**Ingest from GitHub URL**
-Instead of manually cloning a repo into `repos/`, you'd paste a GitHub URL directly into the UI and GitRAG clones and ingests it automatically.
+- [ ] **Ingest from GitHub URL** — Instead of manually cloning a repo into `repos/`, paste a GitHub URL directly into the UI and GitRAG clones and ingests it automatically.
 
-**CLI Interface**
-A lightweight command-line tool for terminal-based querying .
+- [ ] **CLI Interface** — A lightweight command-line tool for terminal-based querying, useful for scripting, automation, and developers who prefer not to open a browser.
 
-**Chat Export**
-Export the current conversation as a markdown file — useful for turning a code exploration session into documentation or a PR review summary.
+- [ ] **Chat Export** — Export the current conversation as a markdown file, useful for turning a code exploration session into documentation or a PR review summary.
 
 ---
 

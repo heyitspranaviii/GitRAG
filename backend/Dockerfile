@@ -24,15 +24,15 @@ RUN pip install --no-cache-dir . && \
 COPY gitrag/ ./gitrag/
 
 # Create runtime directories
-RUN mkdir -p /app/data/chroma /app/data/memory /app/data/repos /app/logs
+RUN mkdir -p /app/data/chroma /app/data/memory /app/data/repos /app/logs /app/.cache/huggingface
 
-# Non-root user for security
+# Non-root user FIRST, then set permissions
 RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app
-USER appuser
 
-# Tell HuggingFace to use the mounted volume path
-ENV HF_HOME=/root/.cache/huggingface
+ENV HF_HOME=/app/.cache/huggingface
+
+USER appuser
 
 EXPOSE 8000
 
