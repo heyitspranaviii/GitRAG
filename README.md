@@ -95,16 +95,6 @@ GitRAG uses five layers of hallucination control:
 ## Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- 
-**Windows only — increase WSL 2 memory:**
-
-Create or edit `C:\Users\<YourName>\.wslconfig`:
-```ini
-[wsl2]
-memory=6GB
-processors=4
-```
-Then run `wsl --shutdown` and restart Docker Desktop.
 
 ---
 
