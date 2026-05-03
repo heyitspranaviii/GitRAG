@@ -95,10 +95,7 @@ GitRAG uses five layers of hallucination control:
 ## Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- **8GB RAM minimum** (6GB absolute minimum with smaller models)
-- **10GB free disk space**
-- Git installed
-
+- 
 **Windows only — increase WSL 2 memory:**
 
 Create or edit `C:\Users\<YourName>\.wslconfig`:
@@ -127,14 +124,13 @@ docker compose up -d
 docker exec gitrag_ollama ollama pull llama3.2:1b
 
 # 5. Clone a repo to analyze
-git clone https://github.com/user/myproject repos/myproject
+mkdir repos
+git clone https://github.com/<username>/<repo_name> repos/<repo_name>
 
-# 6. Open http://localhost — ingest /app/repos/myproject — start chatting
+# 6. Open http://localhost
+     ingest /app/repos/<repo_name>
+     start chatting
 ```
-
-First run downloads Docker images and the LLM model (~1–5GB depending on model). All subsequent runs start in under 30 seconds with no downloads.
-
----
 
 ## Services
 
