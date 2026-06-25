@@ -102,7 +102,7 @@ GitRAG uses five layers of hallucination control:
 
 ```bash
 # 1. Clone
-git clone https://github.com/pranaviii29/GitRAG.git
+git clone https://github.com/heyitspranaviii/GitRAG.git
 cd GitRAG
 
 # 2. Create your .env file (see Configuration section below for all variables)
