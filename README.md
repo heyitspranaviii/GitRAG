@@ -54,7 +54,7 @@ Context Compression + Deduplication
 LLM Generation (context-grounded, citations enforced)
 ```
 
-### AST-Aware Chunking. Why?
+### AST-Aware Chunking
 
 Naïve fixed-size chunking (e.g. 512-token windows with overlap) is fundamentally broken for code:
 
@@ -66,7 +66,7 @@ Naïve fixed-size chunking (e.g. 512-token windows with overlap) is fundamentall
 
 AST-aware chunking extracts **function, class, and method boundaries** directly from the parse tree, preserving complete function bodies as atomic units, docstrings attached to their parent symbols, import context for dependency resolution, and structural metadata (symbol kind, parent class, line numbers).
 
-### Hybrid Search over Pure Vector. Why?
+### Hybrid Search over Pure Vector
 
 Pure vector search fails on exact symbol names ("Where is `calculateTaxRate` defined?" — vector search may miss the exact token match), rare identifiers with poor embedding coverage, and short queries like "AutoSaveService" that have weak semantic signal. BM25 handles exact token matching perfectly. Hybrid search combines the semantic understanding of vectors with the precision of keyword search, then uses Reciprocal Rank Fusion to merge the ranked lists without requiring score normalization.
 
